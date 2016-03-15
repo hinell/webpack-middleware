@@ -1,0 +1,22 @@
+{
+  "name": "wbpck-middleware",
+  "version": "1.0.0",
+  "description": "Webpack middleware module",
+  "main": "lib/Builder.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }, "dependencies" : {
+    "mime" : "*"
+  }
+  ,"keywords": [
+    "wepback",
+    "middleware",
+    "server",
+    "cusom-server",
+    "hinell",
+    "webpack-dev-middleware",
+    "webpackmiddleware"
+  ],
+  "author": "hinell@github.com",
+  "license": "MIT"
+}
