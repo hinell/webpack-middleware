@@ -1,8 +1,8 @@
 # Webpack dev middleware
 
-It is just an enchanced fork of the standart [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
+It is just an enhanced version of the standart [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
 and mix with the middleware from the [kriasoft](https://github.com/kriasoft/webpack-middleware/).
-Supports all the standart http servers implementations, works on 5.0+ node.js version, treat several configs
+Compatible with 4.0/5.0+ node.js (not tested for <4.0). Supports all standart http servers implementations.
 
 ```sh
 $ npm i hinell/webpack-middleware
