@@ -1,5 +1,5 @@
 {
-  "name": "wbpck-middware",
+  "name": "webpack-middware",
   "version": "1.0.0",
   "description": "Webpack middleware module",
   "main": "lib/middware.js",
