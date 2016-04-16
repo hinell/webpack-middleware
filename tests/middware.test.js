@@ -13,8 +13,6 @@ Webpack   = require('webpack');
 MemoryFS  = require('memory-fs');
 Middware  = require('../');
 
-
-
 /* Test stuff */
 Server    = function (middlewareCallback) {
   this.middleware = middlewareCallback;
@@ -43,6 +41,19 @@ Response  = function (testName,test) {
 middconfig= {debug: DEBUG, quiet: !DEBUG };
 compiler  = Webpack(Config);
 
+/* This functions is like "next()" callback of the express.js library*/
+somethingWrong  = function (e) { console.log('Something went wrong! ', e ? e : '' ) }
+request         = new Request('/'+Config.output.filename);
+
+// Watch mode test
+new Server()
+  .mid((middware = new Middware(Object.assign(middconfig,{compiler: compiler, lazy: false }))).middleware)
+  .req(request
+      ,new Response('Watch mode test',function (res) {
+      middware.watching && middware.watching.close();
+        return middware.watching
+    }),somethingWrong);
+
 // Lazy mode test
 new Server()
   .mid(new Middware(Object.assign(middconfig,{
@@ -50,6 +61,21 @@ new Server()
     , compiler: compiler
     , lazy    : true
   })).middleware)
-  .req({url:'/'+Config.output.filename}
-      ,new Response('Lazy mode test',function (res) { return res.content  })
-      ,function somethingWrong(e) { console.log('Test: something went wrong!', e ? e : '' ) })
+  .req(request
+      ,new Response('Lazy mode test ',function (res) { return res.content })
+      ,somethingWrong);
+
+// Headers test
+new Server()
+  .mid((new Middware(Object.assign(middconfig,{
+      compiler: compiler
+    , debug   : false
+    , headers : {files: {'main': {customheader: 'value'} }}
+  }))).middleware)
+  .req(request
+      ,new Response('Headers test ',function (res) {
+        return res.headers.some(function (header) {
+          return header.name === 'customheader'
+        })
+      })
+      ,somethingWrong);
