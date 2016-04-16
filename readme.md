@@ -1,33 +1,33 @@
-# Webpack dev middleware
+# Webpack devmiddleware
 
-It is just an enhanced version of the standart [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
-and mix with the middleware from the [kriasoft](https://github.com/kriasoft/webpack-middleware/).
-Compatible with 4.0/5.0+ node.js (not tested for <4.0). Supports all standart http servers implementations.
+This is featured version of the out-of-the-box [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
+also flavoured by the [kriasoft webpack-middleware](https://github.com/kriasoft/webpack-middleware/) version.
+Compatible with 4.0/5.0+ node.js (not tested for <4.0).
 
 ```sh
-$ npm i hinell/webpack-middleware
+$ npm i hinell/webpack-middware --production
 ```
-```javascript
-var   webpackCompiler = new Webpack(/* ur config here */)
-    , express = require('express')
-    , wbmd    = require('wbpck-middleware')
-    , app     = express();
-      app.use(new ({
-        compiler    : webpackCompiler,  // compiler property is required!
-        pablickPath :'/public'          // doesn't required, by default - '/'
-      }).middleware)                    // don't forget to pass the middleware function to the .use()!
-
-```
-Rest of the configurations can be found [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options).
-####Improvments
-```javascript
-      app.use((multycompiler = new ({
-          compiler  : webpackCompiler
-        , headers   : { // custom headers, can be attached to the specified file
-            files : {'vendor':'Cache-control: max-age=3600 '}
-          }
-        , fs        : new require('memory-fs')  // you are also able no to specify an fs config
-      })).middleware)
+```js
+var   compiler  = new Webpack(/* your config */)
+    , Middware  = require('webpack-middware')
+    , app       = require('express')();
+      app.use((builder = new Middware({
+        compiler    : compiler, // compiler property is required!
+        pablickPath :'/public'  // by default - '/'
+      , headers     : {         // sets custom headers for each requiest
+        , files :               // and per unique file as well
+              {'vendor':'Cache-control: max-age=3600 '} // vendor string turns into the regexp instance
+                                                        // so when it matches to the webpack
+                                                        // entry file then specified respond header is set
+      , fs          : new require('memory-fs') // you are also allowed to change file system (node fs by default)
+      , watch       : {}  // watch config
+      })).middleware)     // ⚠ don't forget to provide the middleware callback to the .use()!
       app.listen(3000);
-      multycompiler.watching.invalidate()   // access watching
 ```
+```js
+      // Miscellaneous
+      builder.watching              // access watching, except case when lazy option is false
+      builder.watching.invalidate() // invalidate bundle
+      builder.fs                    // file system
+```
+Additional standart options available [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options).
