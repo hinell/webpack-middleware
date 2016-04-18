@@ -1,30 +1,11 @@
-var DEBUG = false;
-Config = {
-    entry   : './tests/main.js'
-  , output  : {filename: 'main.bundle.js',path: __dirname}
-  , stats: !DEBUG ? void 0 : {
-    colors: true,
-    reasons: true,
-    timings: true
-  }
-};
             require('colors');
 Webpack   = require('webpack');
 MemoryFS  = require('memory-fs');
 Middware  = require('../');
 
-/* Test stuff */
-Server    = function (middlewareCallback) {
-  this.middleware = middlewareCallback;
-  this.mid        = function (middleware) { this.middleware = middleware; return this };
-  this.req        = function () {
-      this.middleware.apply(null,arguments);
-    return this
-  }
-  
-};
+// Utils
 Request   = function (url) { typeof url === 'string' ? this.url = url : Object.assign(this,url) };
-Response  = function (testName,test) {
+Response  = function () {
   this.headers    = [];
   this.setHeader  = function (name,val) {
     this.headers.push({name: name, val: val});
@@ -32,27 +13,70 @@ Response  = function (testName,test) {
   this.end = function (content) {
     this.finished = true;
     this.content = content;
-    console.log( (test.call(this,this))
-      ? "PASSED: ".green+testName
-      : "\r\n"+
-        "FAILED: ".red  +testName );
+    this.onend.call(this)
   }
 };
-middconfig= {debug: DEBUG, quiet: !DEBUG };
-compiler  = Webpack(Config);
 
-/* This functions is like "next()" callback of the express.js library*/
-somethingWrong  = function (e) { console.log('Something went wrong! ', e ? e : '' ) }
-request         = new Request('/'+Config.output.filename);
+//Prepare testing stuff
+Config    = {
+    entry   : './tests/main.js'
+  , resolve : {root: [process.cwd()]}
+  , output  : {filename: 'main.bundle.js',path: __dirname}
+  , stats   : {
+      colors : true,
+      reasons: true,
+      assets : true
+  }
+};
+var DEBUG = process.env.npm_config_DEBUG || process.env.DEBUG
+middconfig  = {
+   debug   : true
+  ,quiet   : true
+  ,error   : DEBUG
+  ,stats   :(DEBUG ? false :  Config.stats)
+};
+Test      = function (name,cfg,test) {
+  this.name       = name;
+  this.usertest   = test;
+  this.test       = function (next) {
+    this.req       = new Request('/'+Config.output.filename);
+    this.res       = new Response();
+    this.res.onend = this.usertest.bind(this,next);
+    cfg.compiler = Webpack(Config);
+    this.middware || (this.middware  = new Middware(Object.assign(middconfig,cfg)));
+    this.middleware = this.middware.middleware;
+    this.middleware.call(null,this.req,this.res, function (err) { if(err) throw err });
+    return true
+  }.bind(this);
+};
+Tests     = function () {
+  this.tests  = [{test: function (next) { next() }}];
+  this.next   = function (nexttest,err) {
+    // "this." context of this function is equal to one of the tests
+    typeof err == 'string' && (err = new Error(err));
+    var failed = err instanceof Error;
+    var passed = !failed;
 
-// Watch mode test
-new Server()
-  .mid((middware = new Middware(Object.assign(middconfig,{compiler: compiler, lazy: false }))).middleware)
-  .req(request
-      ,new Response('Watch mode test',function (res) {
-      middware.watching && middware.watching.close();
-        return middware.watching
-    }),somethingWrong);
+        passed &&  this.name && console.log('PASSED: '.green + this.name);
+        failed &&  this.name && console.log('FAILED: '.red   + this.name,'\n'+err.stack);
+       (failed || !nexttest) && (console.log('Testing finished!'.yellow), process.exit(0));
+        nexttest && nexttest();
+  };
+  this.add    = function (test,reusePrevMiddleware) {
+    test.reusePrev = reusePrevMiddleware;
+    this.tests.push(test);
+    return this;
+  };
+  this.start  = function () {     // current and next tests
+    this.tests.reduceRight(function (previous,next,i,arr) {
+      var ifPreviousFirst = i == arr.length -2;
+          ifPreviousFirst && (previous.test = previous.test.bind(null,this.next.bind(previous,undefined) ));
+          next.reusePrev && (next.middware = previous.middleware);
+          next.test = next.test.bind(null,this.next.bind(next,previous.test));
+          return next
+    }.bind(this)).test()
+  }
+};
 
 // Lazy mode test
 new Server()
