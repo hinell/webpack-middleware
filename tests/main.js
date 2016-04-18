@@ -1,1 +1,1 @@
-console.log('BUNDLE READY');
+ require('../lib/middware.js');

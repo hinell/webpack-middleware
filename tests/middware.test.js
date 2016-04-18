@@ -78,28 +78,30 @@ Tests     = function () {
   }
 };
 
-// Lazy mode test
-new Server()
-  .mid(new Middware(Object.assign(middconfig,{
-      filename: Config.output.filename
-    , compiler: compiler
-    , lazy    : true
-  })).middleware)
-  .req(request
-      ,new Response('Lazy mode test ',function (res) { return res.content })
-      ,somethingWrong);
+new Tests()
+  .add(new Test('Watch mode test', {}, watchMode))
+  .add(new Test(''               , { lazy: true, filename: Config.output.filename}, function (next) { next() }),true)
+  .add(new Test('Lazy mode test ', {}, checkOutOutput))
+  .add(new Test('Headers test'   , { headers: {files: {'main': {customheader: 'value'} }} }, headers))
+  .add(new Test('Memory fs test' , { fs: new MemoryFS, filename: Config.output.filenamee}, checkOutOutput ))
+  .start();
 
-// Headers test
-new Server()
-  .mid((new Middware(Object.assign(middconfig,{
-      compiler: compiler
-    , debug   : false
-    , headers : {files: {'main': {customheader: 'value'} }}
-  }))).middleware)
-  .req(request
-      ,new Response('Headers test ',function (res) {
-        return res.headers.some(function (header) {
-          return header.name === 'customheader'
-        })
-      })
-      ,somethingWrong);
+function watchMode (next) {
+  var watching = this.middware.watching;
+     (watching && this.res.content)
+        ? next()
+        : next('Watching or content not found!')
+}
+function checkOutOutput (next) {
+  var fs = this.middware.fs;
+      fs.stat(fs.join(Config.output.path,Config.output.filename),
+      function (err,stat) {
+          err && next(err);
+         (err || stat.isFile()) ? next() : next(this.name+' output is not a file!');
+      });
+}
+function headers (next) {
+  this.res.headers.some(function (header) {
+    return header.name === 'customheader'
+  }) ? next() : next('Header not found!');
+}
