@@ -1,33 +1,54 @@
-# Webpack devmiddleware
 
-This is featured version of the out-of-the-box [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
-also flavoured by the [kriasoft webpack-middleware](https://github.com/kriasoft/webpack-middleware/) version.
-Compatible with 4.0/5.0+ node.js (not tested for <4.0).
+# Webpack dev middleware
+[Module API](#api) | [config](#config) | [Miscellaneous](#miscellaneous)<br>
+Development webpack middleware for custom server.<br>
+This is rethinked version of the standart [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
+that brings multiple config support, few features, improvments and some tests.
 
 ```sh
 $ npm i hinell/webpack-middware --production
 ```
 ```js
-var   compiler  = new Webpack(/* your config */)
+var   compiler  = new Webpack(/* your configs, one or more.. */)
     , Middware  = require('webpack-middware')
     , app       = require('express')();
-      app.use((builder = new Middware({
+      app.use((middware = new Middware({
         compiler    : compiler, // compiler property is required!
-        pablickPath :'/public'  // by default - '/'
-      , headers     : {         // sets custom headers for each requiest
-        , files :               // and per unique file as well
-              {'vendor':'Cache-control: max-age=3600 '} // vendor string turns into the regexp instance
-                                                        // so when it matches to the webpack
-                                                        // entry file then specified respond header is set
-      , fs          : new require('memory-fs') // you are also allowed to change file system (node fs by default)
+        publickPath :'/public'  // by default '/'
+      , headers     : {         // sets custom headers for each
+        , files :               // requiest and specific file
+              {'vendor':'Cache-control: max-age=3600 '} // header is sent along the response  when the name
+                                                        // of any requested webpack file
+                                                        // contains the 'vendor' string
+
+      , fs          : new require('memory-fs') // you are free to choose the file system
+                                               // (default is the built-in nodejs)
       , watch       : {}  // watch config
       })).middleware)     // ⚠ don't forget to provide the middleware callback to the .use()!
       app.listen(3000);
 ```
 ```js
       // Miscellaneous
-      builder.watching              // access watching, except case when lazy option is false
-      builder.watching.invalidate() // invalidate bundle
-      builder.fs                    // file system
+      middware.watching              // access watching, undefined in lazy mode (lazy option is specified)
+      middware.watching.invalidate() // invalidate bundle
+      middware.fs                    // file system access
 ```
-Additional standart options available [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options).
+## API
+```js
+var   middware = new Middware(config)
+var   middware = new Middware(webpack, config)
+```
+middware.**middleware** - (req,res,next) - server request listener (middleware)
+## Config
+**.compiler** - webpack instance, this option is **required**<br>
+**.headers** -  *{header: value}* - headers to send on each request<br>
+**.headers.files** - *{filename: {header: value} }* - headers to send along a specified file by its name,  <br>
+**.filename** - *String* - filename on which request middware starts compilation (lazy mode only)<br>
+**.lazy**    - *Boolean* - activates lazy mode so middware compiles bundle by request<br>
+**.error**    - *Boolean* - show errors<br>
+**.debug**    - *Boolean* - show debug info<br>
+**.quiet**    - *Boolean* - log nothing
+
+## Miscellaneous
+Remaining options can be found [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options).<br>
+Webpack multiple configurations [info](http://webpack.github.io/docs/configuration.html#multiple-configurations).
