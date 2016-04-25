@@ -1,12 +1,13 @@
 
-# Webpack dev middleware
+#Webpack-middware
 [Module API](#api) | [config](#config) | [Miscellaneous](#miscellaneous)<br>
 Facilitate webpack compilation by express.js-like middleware.<br>
 This is rethinked version of the standart [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
-that conveys multiple config support over standart middleware, few features, improvments and tests.
+that brings multiple config support over standart middleware, few features, debugs, improvments and tests.
 
 ```sh
-$ npm i hinell/webpack-middware --production
+$ npm i webpack-middware
+$ npm i hinell/webpack-middware --production # for latest edition
 ```
 ```js
 var   compiler  = new Webpack(/* your configs, one or more.. */)
