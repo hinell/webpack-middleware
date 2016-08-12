@@ -1,10 +1,16 @@
 // Created by [Hinell](https://github.com/hinell) at 3/6/2016.
 // Copyright (c) 2016 Hinell@gihub.com
 // Webpack-middware may be freely distributed [under the MIT license](https://opensource.org/licenses/MIT)
-
+// todo: for performance reason replace each .each iteration by the for ( of ) statement
 var join  = require('path').join
   , mime  = require('mime')
   , Err   = function (msg) { return {throw: function(){ throw msg }} };
+  Array.prototype.each  = function (fn,_this) {
+      this || new Err('invalid argument: array required').throw();
+      var val, i = 0;
+      for (val of this) { typeof _this == 'undefined' ? fn(val,i++,this) : fn(val,i++,this).bind(_this) }
+  };
+
     module.exports = Middware;
 function Middware (compiler,cfg) {
   arguments.length    || (new Err('invalid argument: compiler or config required!').throw());
@@ -44,7 +50,7 @@ function Middware (compiler,cfg) {
   this.compiler.compilers && (
       // part of the response path, see below
       this.outputPath = this.compiler.compilers[0].outputPath
-    , this.compiler.compilers.forEach(function (current) {
+    , this.compiler.compilers.each(function (current) {
       // if the current compiler's target is a 'web',
       // then we config its file system and correct this.outputPath
       !!~['web','webworker'].indexOf(current.options.target)
@@ -78,7 +84,7 @@ function Middware (compiler,cfg) {
 function DelayedResponses (build /*{state: bool}*/) {
   this.arr = []; this.build = build;
   this.add      = function (fn) { this.build.state && fn() ||  this.arr.push(fn) };
-  this.proceed  = function ()   { this.arr.length && this.arr.forEach(function (fn) { fn() }); return this};
+  this.proceed  = function ()   { this.arr.length && this.arr.each(function (fn) { fn() }); return this};
   this.empty    = function ()   { this.arr = [] };
 }
 
@@ -177,3 +183,4 @@ function onFail (err) {
   var next = [].slice.call(arguments).pop();  // this is for compilers' async plugins parameters, see webpack plugins api
       next && next.bind && next();
 }
+
