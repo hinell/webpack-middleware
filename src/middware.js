@@ -1,9 +1,4 @@
 // Created by [Hinell](https://github.com/hinell) at 3/6/2016.
-//
-// Usage:
-// ```javascript app.use(new Builder({compiler: webapckBundle}).middleware);```
-//
-// License:
 // Copyright (c) 2016 Hinell@gihub.com
 // Webpack-middware may be freely distributed [under the MIT license](https://opensource.org/licenses/MIT)
 
@@ -12,7 +7,7 @@ var join  = require('path').join
   , Err   = function (msg) { return {throw: function(){ throw msg }} };
     module.exports = Middware;
 function Middware (compiler,cfg) {
-  arguments.length    || (new Err('webpack-middleware: compiler or config is required!').throw());
+  arguments.length    || (new Err('invalid argument: compiler or config required!').throw());
   arguments.length == 1
     && (cfg = compiler)
     || (cfg && (cfg.compiler = compiler) || (cfg = {compiler: compiler}) );
@@ -20,7 +15,7 @@ function Middware (compiler,cfg) {
   cfg.debug
   cfg.error
   cfg.headers
-  cfg.compiler        || (new Err ('webpack-middleware: compiler is required!').throw());
+  cfg.compiler        || (new Err ('config property missing: compiler instance is required!').throw());
   cfg.fs              || (cfg.fs = require('fs'));
   cfg.publicPath      || (cfg.publicPath = '/');
   cfg.stats           || (cfg.stats = {});
@@ -28,7 +23,7 @@ function Middware (compiler,cfg) {
   cfg.watch           || (cfg.watch = {});
   cfg.watch.delay     || (cfg.watch.delay = 200);
   cfg.watch.poll
-  cfg.lazy            && (cfg.filename || new Err('Target filename for lazy mode is required!'))
+  cfg.lazy            && (cfg.filename || new Err('invalid config: target filename for lazy mode is expected'));
   cfg.lazy            && (typeof cfg.filename == 'string') &&
     (cfg.filename = cfg.filename
       .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
@@ -107,7 +102,7 @@ function compilerRebuild () {
   this.build.state
   ? (this.build.state = false
    , this.compiler.run(function (err,stats) {
-        this.error && err.stack && console.log('middleware-error: building is failed ', stats.toString(this.stats), err.stack);
+        this.error && err && err.stack && console.log('middleware-error: building is failed ', stats.toString(this.stats), err.stack);
     }.bind(this)))
   : (this.build.enforce = true);
 
@@ -129,7 +124,7 @@ function middleware (req,res,next) {
       && (reqpath  = join(reqpath,'index.html')
         , this.stat= this.fs.statSync(reqpath) )
     } catch (err) {
-      this.error && err.stack && console.log('middleware-error: this.fs.statSync',err.stack);
+      this.error && err && err.stack && console.log('middleware-error: this.fs.statSync',err.stack);
       return next();
     }
     this.stat.isFile() || next(); // if required path is not a file, then next
@@ -177,7 +172,7 @@ function onDone (stats) {
 }
 function onFail (err) {
   this.quiet || console.log('webpack-middleware: bundle is failed ');
-  this.error && err.stack && console.log('middleware-error: bundle is failed ', err.stack);
+  this.error && err && err.stack && console.log('middleware-error: bundle is failed ', err.stack);
   this.build.state = false;
   var next = [].slice.call(arguments).pop();  // this is for compilers' async plugins parameters, see webpack plugins api
       next && next.bind && next();
