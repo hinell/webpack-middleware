@@ -30,8 +30,7 @@ Config    = {
 };
 var DEBUG = process.env.npm_config_DEBUG || process.env.DEBUG
 middconfig  = {
-   debug   : true
-  ,quiet   : true
+   debug   : DEBUG  ,quiet   : true
   ,error   : DEBUG
   ,stats   :(DEBUG ? false :  Config.stats)
 };
