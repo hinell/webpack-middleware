@@ -1,9 +1,9 @@
 
-#Webpack-middware
+# Webpack-middware
 [![npm](https://img.shields.io/npm/v/webpack-middware.svg?maxAge=2592000&style=flat-square&label=NPM)]()
 [![David](https://img.shields.io/david/hinell/webpack-middware.svg?maxAge=2592000&style=flat-square&label=Dependencies)]()
 [![David](https://img.shields.io/david/dev/hinell/webpack-middware.svg?maxAge=2592000&style=flat-square&label=DevDeps)]()
-[![GitHub tag](https://img.shields.io/github/tag/hinell/webpack-middware.svg?maxAge=2592000&style=flat-square&label=Github tag)]()
+[![GitHub tag](https://img.shields.io/github/tag/hinell/webpack-middware.svg?style=flat-square)](https://github.com/)
 <br>
 **JUMP TO**: [Class API](#api) | [Configuration](#config) | [Miscellaneous](#miscellaneous)<br>
 Server middleware that manages your webpack compilation when in development.<br>
