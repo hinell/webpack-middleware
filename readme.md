@@ -1,32 +1,36 @@
 
-# Webpack-middware
+# WEBPACK-MIDDWARE
+[p]: #webpack-middware
 [![npm](https://img.shields.io/npm/v/webpack-middware.svg?maxAge=2592000&style=flat-square&label=NPM)]()
 [![David](https://img.shields.io/david/hinell/webpack-middware.svg?maxAge=2592000&style=flat-square&label=Dependencies)]()
 [![David](https://img.shields.io/david/dev/hinell/webpack-middware.svg?maxAge=2592000&style=flat-square&label=DevDeps)]()
 [![GitHub tag](https://img.shields.io/github/tag/hinell/webpack-middware.svg?style=flat-square)](https://github.com/)
 <br>
-**JUMP TO**: [Class API](#api) | [Configuration](#config) | [Miscellaneous](#miscellaneous)<br>
-Server middleware that manages your webpack compilation when in development.<br>
-This completely rewritten and heavily tested the [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html)
-brings a powerful support of multiple webpack configurations and some features enhancing basic functionality. See below.
+**[Module API](#api) | [Configuration](#config) | [Miscellaneous](#miscellaneous) | [Credits][cl] | [License][cl]**<br>
+>Server middleware that manages your webpack compilation easily. <br>
+>Complete rehaul of the official [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html) version
+>powered by a support of multiple webpack configurations and some handy features leveraging basic functionality.
+
+
 ```sh
 $ npm i webpack-middware
 $ npm i hinell/webpack-middware --production # latest version
 ```
+
 ```js
 var   compiler  = new Webpack(/* your configs, one or more.. */)
     , Middware  = require('webpack-middware')
     , app       = require('express')();
       app.use((middware = new Middware({
-        compiler    : compiler, // compiler property is required!
+        compiler    : compiler, // REQUIRED! (except if you've passed during middleware instantiation)
         publickPath :'/public'  // by default '/'
       , headers     : {         // headers to be served to
-        , 'Cache-control': 'max-age=0' // every client requiest
-        , files :                      // or for specific file request
-            {'vendor':{'Cache-control': 'max-age=3600'}}// headers are sent with response  when the name
-                                                        // of any requested webpack output bundle
-                                                        // matches for instance to the 'vendor' regexp
-      , fs          : new require('memory-fs') // feel free to choose the file system
+        , 'Cache-control': 'max-age=0' // for every client requiest send these headers
+        , files :
+            {'vendor':{'Cache-control': 'max-age=3600'}}// if client requesting for webpack
+                                                        // bundle called the "vendor" then
+                                                        // attach specified headers
+      , fs          : new require('memory-fs') // custom fs
       , watch       : {}  // watch config
       })).middleware)     // ⚠ don't forget to provide the middleware callback to the .use()!
       app.listen(3000);
@@ -37,12 +41,14 @@ var   compiler  = new Webpack(/* your configs, one or more.. */)
       middware.watching.invalidate() // invalidate bundle
       middware.fs                    // file system access
 ```
+
 ## API
 ```js
 var   middware = new Middware(compiler[, config]) // middware takes webpack compiler and optional config
-var   middware = new Middware(config) // the compiler passed by the config property like {compiler: compiler}
+var   middware = new Middware(config) // the compiler is provided by config property { compiler }
+
+      middware.middleware // is of type of (req,res,next) server request listener (middleware)
 ```
-middware.**middleware** - (req,res,next) - server request listener (middleware)
 ## Config
 **.compiler** - webpack compiler instance, this option is **required**<br>
 **.fs**       - files system where compiled files are kept, by default it is equal to the ``require('fs')``<br>
@@ -56,5 +62,11 @@ middware.**middleware** - (req,res,next) - server request listener (middleware)
 **.quiet**    - *Boolean* - log no info about compilation, except errors and debug, **false** by default
 
 ## Miscellaneous
-Rest of options can be found [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options).<br>
-Webpack multiple [configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations).
+Follow [here](http://webpack.github.io/docs/webpack-dev-middleware.html#options) for more options.<br>
+More info about webpack multiple [configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations).
+
+## CREDITS & LICENSE 
+[cl]: #credits--license
+Pending...
+
+[BRING ME BACK][p]
