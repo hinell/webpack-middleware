@@ -8,7 +8,7 @@
 <br>
 **[Module API](#api) | [Configuration](#config) | [Miscellaneous](#miscellaneous) | [Credits][cl] | [License][cl]**<br>
 >Server middleware that manages your webpack compilation easily. <br>
->Complete rehaul of the official [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html) version
+>Complete overhaul of the official [webpack-dev-middleware](http://webpack.github.io/docs/webpack-dev-middleware.html) version
 >powered by a support of multiple webpack configurations and some handy features leveraging basic functionality.
 
 
