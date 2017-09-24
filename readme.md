@@ -1,3 +1,4 @@
+**WARNING STATEMENT:** This module is now considered _legacy_ and should be used with newer webpack 3.x versions with caution  due to possible bugs. Reconsider please to use [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware) instead. If you stillt want to use features like custom file system and bundle specific headers please consider to open new PR to the original middleware repo.
 
 # WEBPACK-MIDDWARE
 [p]: #webpack-middware
@@ -13,26 +14,30 @@
 
 
 ```sh
-$ npm i webpack-middware
-$ npm i hinell/webpack-middware --production # latest version
+$ npm i --no-optional webpack-middware
+$ npm i --no-optional hinell/webpack-middware # latest version
+
 ```
 
 ```js
-var   compiler  = new Webpack(/* your configs, one or more.. */)
     , Middware  = require('webpack-middware')
     , app       = require('express')();
       app.use((middware = new Middware({
-        compiler    : compiler, // REQUIRED! (except if you've passed during middleware instantiation)
-        publickPath :'/public'  // by default '/'
-      , headers     : {         // headers to be served to
-        , 'Cache-control': 'max-age=0' // for every client requiest send these headers
-        , files :
-            {'vendor':{'Cache-control': 'max-age=3600'}}// if client requesting for webpack
-                                                        // bundle called the "vendor" then
-                                                        // attach specified headers
-      , fs          : new require('memory-fs') // custom fs
-      , watch       : {}  // watch config
-      })).middleware)     // ⚠ don't forget to provide the middleware callback to the .use()!
+    //  webpack compiler is REQUIRED (except when you have passed it early by first argument)
+        compiler : new Webpack({ entry: ... , output: , plugins: [...] }), 
+        publicPath :'/public' // [default - '/'] 
+      , headers : {// headers to be send along with script bundle
+        , 'Cache-control': 'max-age=0'  // common header to be sent with every bundle response
+        , files :{ // bundle specific headers
+            // headers to be sent for 'vendor' bundle request
+            'vendor': { 'Cache-control': 'max-age=3600'}
+         }
+      }
+      , fs    : new require('memory-fs') // specify in-memory or local file system [default - in memory]
+      , watch : {}  // configure watch settings [see webpack watch settings]
+       // ⚠ don't forget to provide the middleware callback to the .use()!
+      })).middleware)
+      
       app.listen(3000);
 ```
 ```js
@@ -67,6 +72,8 @@ More info about webpack multiple [configurations](http://webpack.github.io/docs/
 
 ## CREDITS & LICENSE 
 [cl]: #credits--license
-Pending...
+MIT
 
-[BRING ME BACK][p]
+<hr>
+
+[RETURN BACK][p]
